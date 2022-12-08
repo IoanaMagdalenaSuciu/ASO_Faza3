@@ -1,0 +1,48 @@
+{%extends 'base.html' %}
+{% load static %}
+{%block mainbody%}
+
+    <body style="background-image: linear-gradient(to right,rgb(102,179,186,1), rgba(246, 239, 166))">
+    <br><br><br><br>
+    <div class="container"  >
+        <section class="vh-100 gradient-custom">
+            <div class="row">
+                <div class="col col-md-3">
+                    <div class="card h-100">
+                        <div class="card-body p-4 p-md-5">
+                            <h3 class="mb-4 pb-2 pb-md-0 mb-md-5 ">Create New Chat:</h3>
+                            <div class="list-group">
+                               <form id="post-form" method="POST" action="view">
+                                   {% csrf_token %}
+                                   <div class="mb-5">
+                                       <label class="text-center">Chat Name</label>
+                                        <input type="text" name="chat_name" id="chat_name" class = "autofocus"/>
+                                   </div>
+                                  <button class="btn btn-block btn-primary">Create and Enter</button>
+                               </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col col-md-9">
+                    <div class="card">
+                        <div class="card-body p-4 p-md-5">
+                            <h3 class="mb-4 pb-2 pb-md-0 mb-md-5 ">Chat List:</h3>
+                            <div class="list-group">
+                             <form id="post-form" method="POST" action="view">
+                                {% for chat in chats %}
+                                    {% csrf_token %}
+                                    <input type="hidden" name="chat_name" id="chat_name" value="{{chat.name}}"/>
+                                    <button class="list-group-item list-group-item-action">{{ chat.name }}</button>
+                                {% endfor %}
+                             </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div >
+    </body>
+{%endblock%}

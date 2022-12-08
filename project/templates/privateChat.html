@@ -1,0 +1,133 @@
+{%extends 'base.html' %}
+{% load static %}
+
+{%block mainbody%}
+
+      <body style="background-image: linear-gradient(to right,rgb(102,179,186,1), rgba(246, 239, 166))">
+           <br><br>
+
+            <script>
+                $(document).ready(function(){
+
+                setInterval(function(){
+                    $.ajax({
+                        type: 'GET',
+                        url : "/messages/{{chat}}/",
+                        success: function(response){
+                            console.log(response);
+                            $("#display").empty();
+                            console.log()
+                            for (var key in response.messages)
+                            {
+                                var temp=  "<div class='card'><div class='card-header d-flex justify-content-between p-3'><p class='fw-bold mb-0'>"+response.messages[key].sender+"</p><p class='text-muted small mb-0'><i class='far fa-clock'></i>" +response.messages[key].send_at +"</p></div><div class='card-body'><p class='mb-0'>"+response.messages[key].text+"</p></div></div>";
+                                $("#display").append(temp);
+                            }
+                        },
+                        error: function(response){
+                            alert('An error occured')
+                        }
+                    });
+                },1000);
+                })
+            </script>
+            <div class="card-group">
+                <div class="d-flex justify-content-start">
+                   <div class="card h-100">
+                        <div class="card-body p-4 p-md-5">
+                            <h3 class="mb-4 pb-2 pb-md-0 mb-md-5 text-center ">Users in this gorup</h3>
+                            <div class="list-group">
+                               {% for user in chat_details.users.all%}
+                                  <button class="list-group-item list-group-item-action disabled">{{ user.username }}</button>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-end">
+                    <div class="card h-100">
+                        <div class="card-body p-4 p-md-5">
+                            <h3 class="mb-4 pb-2 pb-md-0 mb-md-5 text-center ">Add users</h3>
+                            <div class="list-group">
+                                <form id="puth-form" method="POST" action="invite">
+                                    {% for u in all_users%}
+                                        {% csrf_token %}
+                                        {%  if u  not in chat_users  %}
+                                                <input type="hidden" name="new_user" id="new_user" value="{{ u.username}}"/>
+                                                <button class="list-group-item list-group-item-action">{{ u.username }}</button>
+                                        {% endif %}
+
+                                    {% endfor %}
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <br><br>
+            <div class="container"  >
+                    <section class="vh-100 gradient-custom">
+                    <div class="card">
+                        <div class="card-body p-4 p-md-5">
+                            <h3 class="text-center ">Welcome to {{ chat_details.name}} chat</h3>
+                                <ul class="list-group">
+                                    <li  class="col-xs-3 list-group-item">
+                                        <div id = "display"></div>
+                                        <br><br><br>
+                                    </li>
+                                </ul>
+                            <br>
+                            <div class="container">
+                                <form id="post-form">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="username" id="username" value="{{username}}"/>
+                                    <input type="hidden" name="chat_name" id="chat_name" value="{{chat_details.name}}"/>
+                                    <input type="text" class = "form-control autofocus" name="message" id="message"  />
+                                    <br>
+                                    <input type="submit" class ="btn  btn-block btn-success " value="Send">
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div >
+
+      <script type="text/javascript">
+          $(document).on('submit','#post-form',function(e){
+            e.preventDefault();
+            {#console.log($('input[name=csrfmiddlewaretoken]').val())#}
+            $.ajax({
+              type:'POST',
+              url:'/send',
+              data:{
+                  username:$('#username').val(),
+                  chat_name:$('#chat_name').val(),
+                  message:$('#message').val(),
+                csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val(),
+              },
+              success: function(data){
+              }
+            });
+            document.getElementById('message').value = ''
+          });
+          $(document).on('submit','#puth-form',function(e){
+            e.preventDefault();
+            {#console.log($('input[name=csrfmiddlewaretoken]').val())#}
+            $.ajax({
+              type:'POST',
+              url:'/invite',
+              data:{
+                  new_user:$('#new_user').val(),
+                  chat_name:$('#chat_name').val(),
+                csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val(),
+              },
+              success: function(data){
+              }
+            });
+            {#document.getElementById('message').value = ''#}
+          });
+      </script>
+    </body>
+
+{% endblock %}
